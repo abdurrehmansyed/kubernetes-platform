@@ -71,108 +71,36 @@ This mirrors how real production systems evolve over time.
 
 ---
 
-## Repository overview
+## Repository overview and structure
 
-This project is intentionally split into multiple repositories. Each one represents a clear ownership boundary, similar to how responsibilities are divided in real teams.
+The Kubernetes Platform is split across multiple repositories, each with a clear responsibility. All repositories that belong to this platform use a common `kp-` prefix.
 
-### 1. terraform-multi-env-infra
+The `kubernetes-platform` repository is the **entry point**. It contains the overall context, architecture, and reasoning. All implementation lives in the repositories listed below.
 
-This repository is responsible for **creating infrastructure**.
+### Platform repositories
 
-It defines networks, compute resources, Kubernetes prerequisites, and environment separation (dev, staging, prod). Everything is versioned and reproducible.
+* **kp-terraform-infra**
+  Infrastructure as Code for provisioning networks, compute, and Kubernetes prerequisites across multiple environments.
 
-If infrastructure breaks, this is where the fix starts.
+* **kp-k8s-platform**
+  The core Kubernetes platform: cluster bootstrap, networking, ingress, storage, security primitives, upgrades, and day-2 operations.
 
----
+* **kp-ci-cd**
+  CI/CD pipelines and deployment workflows used to safely build, test, deploy, and roll back applications running on the platform.
 
-### 2. k8s-platform-baremetal
+* **kp-observability**
+  Metrics, logging, alerting, SLOs, and runbooks used to understand system health and respond to incidents.
 
-This is the core of the platform.
+* **kp-ops-automation**
+  Automation for routine and high-risk operational tasks such as patching, health checks, node maintenance, and certificate rotation.
 
-It covers:
+* **kp-security**
+  Security hardening, policy enforcement, network isolation, RBAC, and compliance-oriented controls baked into the platform.
 
-* Kubernetes cluster bootstrap
-* Networking, ingress, and storage
-* RBAC and pod security
-* Upgrade and rollback strategies
-* Day-2 operations
+* **kp-design-docs**
+  Architecture decisions, trade-offs, failure scenarios, scaling considerations, and cost vs reliability discussions.
 
-This repository reflects the reality that Kubernetes is not “set and forget”. It needs to be designed for upgrades, failures, and long-term operation.
-
----
-
-### 3. ci-cd-platform
-
-This repository answers the question:
-
-“How does code safely reach production?”
-
-It contains pipelines for building, testing, scanning, deploying, and rolling back applications. The focus is on safety, repeatability, and minimizing blast radius during releases.
-
----
-
-### 4. observability-stack
-
-This repository exists because dashboards alone don’t solve outages.
-
-It defines:
-
-* Metrics
-* Logs
-* Alerts
-* SLOs
-* Runbooks
-* Postmortem templates
-
-The goal is to make incidents understandable and actionable, not noisy and confusing.
-
----
-
-### 5. k8s-ops-automation
-
-This repository contains the automation that keeps the platform healthy.
-
-It handles tasks like:
-
-* Cluster health checks
-* Node maintenance
-* Patching and upgrades
-* Backup validation
-* Certificate rotation
-
-Anything that was previously done manually more than once ends up here.
-
----
-
-### 6. k8s-security-hardening
-
-Security is treated as part of the platform, not a separate phase.
-
-This repository includes:
-
-* RBAC and least privilege
-* Network policies
-* Policy enforcement
-* Image and secret handling
-* Compliance mappings
-
-The intent is to raise the security baseline without slowing teams down.
-
----
-
-### 7. infra-design-docs
-
-This repository contains the thinking behind the platform.
-
-It documents:
-
-* Architecture decisions
-* Trade-offs
-* Failure scenarios
-* Scaling limits
-* Cost vs reliability discussions
-
-This is where context lives, so future changes are informed and intentional.
+Each repository links back to this one, and this repository links out to them. The intent is to make the system easy to navigate and reason about, even for someone seeing it for the first time.
 
 ---
 
