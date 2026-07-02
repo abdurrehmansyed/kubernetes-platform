@@ -1,0 +1,15 @@
+blank_issues_enabled: false
+
+contact_links:
+
+* name: Kubernetes Platform Documentation
+  url: https://github.com/abdurrehmansyed/kubernetes-platform
+  about: Start here for the main project overview, architecture, roadmap, and repository map.
+
+* name: Project Standards
+  url: https://github.com/abdurrehmansyed/kubernetes-platform/blob/main/PROJECT-STANDARDS.md
+  about: Review naming, documentation, branching, commit, security, and execution standards before creating an issue.
+
+* name: Repository Map
+  url: https://github.com/abdurrehmansyed/kubernetes-platform/blob/main/REPOSITORIES.md
+  about: Use this to decide which repository owns a task, bug, feature, script, manifest, runbook, or document.
