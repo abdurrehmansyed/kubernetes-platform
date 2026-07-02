@@ -1,0 +1,47 @@
+name: YAML Check
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  yaml-check:
+    name: Validate YAML Files
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check for YAML files
+        id: yaml-files
+        run: |
+          if find . \( -name "*.yml" -o -name "*.yaml" \) -type f | grep -q .; then
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Display YAML files
+        if: steps.yaml-files.outputs.found == 'true'
+        run: |
+          echo "YAML files found:"
+          find . \( -name "*.yml" -o -name "*.yaml" \) -type f | sort
+
+      - name: Install yamllint
+        if: steps.yaml-files.outputs.found == 'true'
+        run: |
+          python -m pip install --upgrade pip
+          pip install yamllint
+
+      - name: Run yamllint
+        if: steps.yaml-files.outputs.found == 'true'
+        run: |
+          yamllint .
