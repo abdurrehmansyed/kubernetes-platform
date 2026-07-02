@@ -1,0 +1,80 @@
+name: Link Check
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  link-check:
+    name: Check Local Markdown Links
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check Markdown files exist
+        id: markdown-files
+        run: |
+          if find . -name "*.md" -type f | grep -q .; then
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Display Markdown files
+        if: steps.markdown-files.outputs.found == 'true'
+        run: |
+          echo "Markdown files found:"
+          find . -name "*.md" -type f | sort
+
+      - name: Check local Markdown links
+        if: steps.markdown-files.outputs.found == 'true'
+        run: |
+          echo "Checking local Markdown links..."
+
+          failed=0
+
+          while IFS= read -r file; do
+            echo "Checking links in $file"
+
+            grep -oE '\[[^]]+\]\([^)]+\)' "$file" | while read -r link; do
+              target=$(echo "$link" | sed -E 's/.*\(([^)]+)\).*/\1/')
+
+              if echo "$target" | grep -Eq '^(http|https|mailto):'; then
+                continue
+              fi
+
+              if echo "$target" | grep -q '^#'; then
+                continue
+              fi
+
+              clean_target=$(echo "$target" | cut -d'#' -f1)
+
+              if [ -z "$clean_target" ]; then
+                continue
+              fi
+
+              base_dir=$(dirname "$file")
+              full_path="$base_dir/$clean_target"
+
+              if [ ! -e "$full_path" ]; then
+                echo "Broken local link found in $file: $target"
+                failed=1
+              fi
+            done
+          done < <(find . -name "*.md" -type f)
+
+          if [ "$failed" -eq 1 ]; then
+            echo "Broken local links were found."
+            exit 1
+          fi
+
+          echo "Local Markdown link check completed successfully."
